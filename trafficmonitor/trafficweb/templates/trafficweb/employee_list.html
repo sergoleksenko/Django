@@ -1,0 +1,13 @@
+{% extends "general.html" %}
+
+{% block content %}
+    <h1>Employees:</h1>
+    <ul>
+        {% for emp in employees %}
+            <li>
+                {{ emp.employee.name }} ({{ emp.employee.email }}) - {{ emp.company }} <a href="{% url 'employee_edit' emp.employee.id %}">[edit]</a> <a href="{% url 'employee_delete' emp.employee.id %}" style="color: red">[delete]</a>
+            </li>
+        {% endfor %}
+        <a href="{% url 'employee_add' %}">[add]</a>
+    </ul>
+{% endblock %}
