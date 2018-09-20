@@ -1,4 +1,5 @@
 import requests
+from django.core.paginator import Paginator
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 
@@ -8,6 +9,8 @@ from django.urls import reverse
 from trafficmonitor import settings
 from trafficweb.forms import CompanyForm, EmployeeForm
 
+PAGING = 10
+
 
 def get_companies():
 	response = requests.get('{0}api/companies'.format(settings.BASE_URL))
@@ -16,19 +19,29 @@ def get_companies():
 
 
 def companieslist(request):
-	return render(request, 'trafficweb/company_list.html', {'json': get_companies()})
+	paginator = Paginator(get_companies(), PAGING)
+	page = request.GET.get('page')
+	companies = paginator.get_page(page)
+
+	return render(request, 'trafficweb/company_list.html', {'page_obj': companies})
 
 
 def employeeslist(request):
 	response = requests.get('{0}api/employees'.format(settings.BASE_URL))
-	json = response.json()
-	context = []
-	for emp in json:
-		company_response = requests.get('{0}api/companies/{1}'.format(settings.BASE_URL, emp['company']))
-		company_json = company_response.json()
-		context.append({'employee': emp, 'company': company_json['name']})
+	if response.status_code == 200:
+		json = response.json()
+		context = []
 
-	return render(request, 'trafficweb/employee_list.html', {'employees': context})
+		for emp in json:
+			company_response = requests.get('{0}api/companies/{1}'.format(settings.BASE_URL, emp['company']))
+			company_json = company_response.json()
+			context.append({'employee': emp, 'company': company_json['name']})
+
+		paginator = Paginator(context, PAGING)
+		page = request.GET.get('page')
+		employees = paginator.get_page(page)
+
+	return render(request, 'trafficweb/employee_list.html', {'page_obj': employees})
 
 
 def generate(request):
@@ -38,12 +51,21 @@ def generate(request):
 
 
 def report(request):
-	month = request.GET.get('month_field')
+	global month
+
+	if request.GET.get('month_field') is not None:
+		month = request.GET.get('month_field')
+
 	response = requests.get('{0}api/report/{1}'.format(settings.BASE_URL, month))
+
 	if response.status_code == 200:
 		json = response.json()
+		clean_json = [j for j in json if j['used'] > j['quota']]
+		paginator = Paginator(clean_json, PAGING)
+		page = request.GET.get('page')
+		report = paginator.get_page(page)
 
-	return render(request, 'trafficweb/report_list.html', {'json': json})
+	return render(request, 'trafficweb/report_list.html', {'page_obj': report})
 
 
 def companyadd(request):

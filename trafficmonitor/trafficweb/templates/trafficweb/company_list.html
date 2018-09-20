@@ -34,7 +34,7 @@
         <button type="button" onclick="location.href='{% url 'transfers_generate' %}'">Generate</button>
     </form>
     <ul>
-        {% for company in json %}
+        {% for company in page_obj %}
             <li>
                 {{ company.name }} {{ company.quota }} TB <a href="{% url 'company_edit' company.id %}">[edit]</a> <a href="{% url 'company_delete' company.id %}" style="color: red">[delete]</a>
             </li>

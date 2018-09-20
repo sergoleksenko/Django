@@ -3,15 +3,13 @@
 {% block content %}
     <h1>Report:</h1>
     <ul>
-        {% if not json %}
+        {% if not page_obj %}
             <p>Good news! There are no companies that were exceeded quota this month!</p>
         {% else %}
-            {% for transfer in json %}
-                {% if transfer.used > transfer.quota %}
-                    <li>
-                        {{ transfer.name }} {{ transfer.used }} TB ({{ transfer.quota }} TB)
-                    </li>
-                {% endif %}
+            {% for transfer in page_obj %}
+                <li>
+                    {{ transfer.name }} {{ transfer.used }} TB ({{ transfer.quota }} TB)
+                </li>
             {% endfor %}
         {% endif %}
     </ul>
