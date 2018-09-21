@@ -59,5 +59,6 @@ def report(request, pk):
 	                                   quota=F('employee__company__quota')).annotate(
 			used=Cast(Sum('bytes_amount') / 1099511627776, IntegerField())).order_by('employee__company_id').filter(
 			date__contains='-{0}-'.format(pk))
+	filter_queryset = [q for q in queryset if q['used'] > q['quota']]
 
-	return Response(queryset, status=status.HTTP_200_OK)
+	return Response(filter_queryset, status=status.HTTP_200_OK)

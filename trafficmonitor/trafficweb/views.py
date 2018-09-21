@@ -60,8 +60,7 @@ def report(request):
 
 	if response.status_code == 200:
 		json = response.json()
-		clean_json = [j for j in json if j['used'] > j['quota']]
-		paginator = Paginator(clean_json, PAGING)
+		paginator = Paginator(json, PAGING)
 		page = request.GET.get('page')
 		report = paginator.get_page(page)
 
