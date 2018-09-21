@@ -18,10 +18,16 @@ def get_companies():
 		return response.json()
 
 
-def companieslist(request):
-	paginator = Paginator(get_companies(), PAGING)
+def paging(request, querySet):
+	paginator = Paginator(querySet, PAGING)
 	page = request.GET.get('page')
-	companies = paginator.get_page(page)
+	page_obj = paginator.get_page(page)
+
+	return page_obj
+
+
+def companieslist(request):
+	companies = paging(request, get_companies())
 
 	return render(request, 'trafficweb/company_list.html', {'page_obj': companies})
 
@@ -37,9 +43,7 @@ def employeeslist(request):
 			company_json = company_response.json()
 			context.append({'employee': emp, 'company': company_json['name']})
 
-		paginator = Paginator(context, PAGING)
-		page = request.GET.get('page')
-		employees = paginator.get_page(page)
+		employees = paging(request, context)
 
 	return render(request, 'trafficweb/employee_list.html', {'page_obj': employees})
 
@@ -60,9 +64,7 @@ def report(request):
 
 	if response.status_code == 200:
 		json = response.json()
-		paginator = Paginator(json, PAGING)
-		page = request.GET.get('page')
-		report = paginator.get_page(page)
+		report = paging(request, json)
 
 	return render(request, 'trafficweb/report_list.html', {'page_obj': report})
 
