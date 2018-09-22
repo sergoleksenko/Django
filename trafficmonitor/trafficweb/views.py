@@ -93,6 +93,8 @@ def companyedit(request, pk):
 		response = requests.get('{0}api/companies/{1}'.format(settings.BASE_URL, pk))
 		if response.status_code == 200:
 			form = CompanyForm(response.json())
+		elif response.status_code == 404:
+			return render(request, 'trafficweb/error_404.html', {'entity': 'Company'})
 
 	return render(request, 'trafficweb/company_edit.html', {'form': form})
 
@@ -102,6 +104,8 @@ def companydelete(request, pk):
 		response = requests.delete('{0}api/companies/{1}'.format(settings.BASE_URL, pk))
 		if response.status_code == 204:
 			return HttpResponseRedirect(reverse('companies'))
+		elif response.status_code == 404:
+			return render(request, 'trafficweb/error_404.html', {'entity': 'Company'})
 
 	return render(request, 'trafficweb/company_delete.html')
 
@@ -140,6 +144,8 @@ def employeeedit(request, pk):
 		if response.status_code == 200:
 			form = EmployeeForm(response.json())
 			form.fields['company'].choices = companies
+		elif response.status_code == 404:
+			return render(request, 'trafficweb/error_404.html', {'entity': 'Employee'})
 
 	return render(request, 'trafficweb/employee_edit.html', {'form': form})
 
@@ -149,5 +155,7 @@ def employeedelete(request, pk):
 		response = requests.delete('{0}api/employees/{1}'.format(settings.BASE_URL, pk))
 		if response.status_code == 204:
 			return HttpResponseRedirect(reverse('employees'))
+		elif response.status_code == 404:
+			return render(request, 'trafficweb/error_404.html', {'entity': 'Employee'})
 
 	return render(request, 'trafficweb/employee_delete.html')
